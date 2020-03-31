@@ -237,9 +237,9 @@ class taskCoordinator(object):
     def __init__(self):
         self.pipeline = {}
         self.phases = ['in', 'trans', 'out']
-        for phase, dic_ in sorted(settings['pipeline'].iteritems()):
+        for phase, dic_ in sorted(settings['pipeline'].items()):
             self.pipeline[phase] = {}
-            for key, value in dic_.iteritems():
+            for key, value in dic_.items():
                 if value:
                     self.pipeline[phase][key] = value
 
@@ -263,12 +263,12 @@ class taskCoordinator(object):
                     for phase in self.phases:
                         dic = self.pipeline[phase]
                         if phase == 'trans':
-                            for key, value in dic.iteritems():
+                            for key, value in dic.items():
                                 if value:
                                     extractor = Extractor(key, parser.key)
                                     json_ = extractor.run(json_)
                         if phase == 'out':
-                            for key, value in sorted(dic.iteritems()):
+                            for key, value in sorted(dic.items()):
                                 if value:
                                     dumper = Dumper(key, parser.key)
                                     dumper.save(json_)
@@ -285,12 +285,12 @@ class taskCoordinator(object):
             for phase in self.phases:
                 dic = self.pipeline[phase]
                 if phase == 'trans':
-                    for key, value in dic.iteritems():
+                    for key, value in dic.items():
                         if value:
                             extractor = Extractor(key, parser.key)
                             json_ = extractor.run(json_)
                 if phase == 'out':
-                    for key, value in sorted(dic.iteritems()):
+                    for key, value in sorted(dic.items()):
                         if value:
                             dumper = Dumper(key, parser.key)
                             dumper.save(json_)
@@ -414,28 +414,28 @@ class taskCoordinator(object):
         #                     dumper.save(tmp)
 
     def print_pipeline(self):
-        print('#'*30 + ' Pipeline Schedule' + '#'*30)
+        print(('#'*30 + ' Pipeline Schedule' + '#'*30))
         for phase in self.phases:
             dic = self.pipeline[phase]
             if phase == 'in':
                 if dic['source'] == 'delete':
-                    print("Will delete all %s resource associated edges!" % settings['neo4j']['resource'])
+                    print(("Will delete all %s resource associated edges!" % settings['neo4j']['resource']))
                     break
                 if dic['source'] == 'file':
                     source = settings['load']['path']['file_path']
                 elif dic['source'] == 'mongo':
                     source = settings['load']['mongo']['file_path']
-                print('Will read from: %s' % source)
+                print(('Will read from: %s' % source))
             if phase == 'trans':
                 print('Will use the following transformation utilities:')
-                for key, value in dic.iteritems():
-                    print ('- %s' % key)
+                for key, value in dic.items():
+                    print(('- %s' % key))
             if phase == 'out':
                 print('Will save the outcome as follows:')
-                for key, value in dic.iteritems():
+                for key, value in dic.items():
                     if key == 'mongo_sentences':
                         out_p = '/'.join([settings[key]['uri'],settings[key]['db'],settings[key]['collection']])
-                        print('%s  : %s' % (key, out_p))
+                        print(('%s  : %s' % (key, out_p)))
                     else:
-                        print('%s  : %s' % (key, settings['out'][key]['out_path']))
-        print('#'*30 + ' Pipeline Schedule ' + '#'*30)
+                        print(('%s  : %s' % (key, settings['out'][key]['out_path'])))
+        print(('#'*30 + ' Pipeline Schedule ' + '#'*30))
