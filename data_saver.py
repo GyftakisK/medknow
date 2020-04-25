@@ -48,7 +48,7 @@ def save_json(json_):
     # Output file location from settings
     outfile = settings['out']['json']['out_path']
     if settings['pipeline']['in']['stream'] or settings['pipeline']['in']['parallel']:
-        print 'mpainei append'
+        print('mpainei append')
         if os.path.isfile(outfile):
             with open(outfile, 'r') as f:
                 docs1 = json.load(f)[settings['out']['json']['json_doc_field']]
@@ -124,7 +124,7 @@ def aggregate_mentions(entity_pmc_edges):
             c += 1
     un_list = []
     time_log('Aggregated %d mentions from %d in total' % (c, len(entity_pmc_edges)))
-    for k, v in uniques.iteritems():
+    for k, v in uniques.items():
         un_list.append(v)
     return un_list
 
@@ -145,10 +145,10 @@ def aggregate_relations(relations_edges):
         cur_key = str(edge[':START_ID'])+'_'+str(edge[':TYPE'])+'_'+str(edge[':END_ID'])
         flag = False
         if cur_key in uniques:
-            if 'sent_id:string[]' in edge.keys():
+            if 'sent_id:string[]' in list(edge.keys()):
                 if edge['sent_id:string[]'] in uniques[cur_key]['sent_id:string[]']:
                     continue
-            for field in edge.keys():
+            for field in list(edge.keys()):
                 if not(field in [':START_ID', ':TYPE', ':END_ID']):
                     uniques[cur_key][field] = uniques[cur_key][field]+';'+edge[field]
             flag = True
@@ -158,7 +158,7 @@ def aggregate_relations(relations_edges):
             c += 1
     un_list = []
     time_log('Aggregated %d relations from %d in total' % (c, len(relations_edges)))
-    for k, v in uniques.iteritems():
+    for k, v in uniques.items():
         un_list.append(v)
     return un_list
 
@@ -393,9 +393,9 @@ def create_neo4j_csv(results):
         'other_edges.csv':[':START_ID', ':TYPE', 'resource:string[]', ':END_ID']
     }
 
-    for k, toCSV in dic_.iteritems():
+    for k, toCSV in dic_.items():
         if toCSV:
-            keys = toCSV[0].keys()
+            keys = list(toCSV[0].keys())
             out = os.path.join(outpath, k)
             with open(out, 'wb') as output_file:
                 time_log("Created file %s" % k)
@@ -421,9 +421,9 @@ def fix_on_create_nodes(node):
     """
     s = ' '
     # Has at least one other attribute to create than id
-    if len(node.keys())>1:
+    if len(list(node.keys()))>1:
         s = 'ON CREATE SET '
-        for key, value in node.iteritems():
+        for key, value in node.items():
             if (value) and (value != " "):
                 if 'ID' in key.split(':'):
                     continue
@@ -518,7 +518,7 @@ def create_edge_query(edge, sub_ent=settings['load']['edges']['sub_type'],
     s = """MATCH (a:%s {id:"%s"}), (b:%s {id:"%s"}) 
            MERGE (a)-[r:%s]->(b)
            ON MATCH SET """ % (sub_ent, edge[':START_ID'], obj_ent, edge[':END_ID'],  edge[':TYPE'])
-    for key, value in edge.iteritems():
+    for key, value in edge.items():
         # Don't see why this check should be here???
         # if (value):
         if not(('START_ID' in key.split(':')) or ('END_ID' in key.split(':')) or ('TYPE' in key.split(':'))):
@@ -544,7 +544,7 @@ def create_edge_query(edge, sub_ent=settings['load']['edges']['sub_type'],
             s += ' r.%s = CASE WHEN NOT EXISTS(r.%s) THEN %s ELSE r.%s + %s END,' % (field, field, string_value, field, string_value)
     s = s[:-1]
     s += ' ON CREATE SET '
-    for key, value in edge.iteritems():
+    for key, value in edge.items():
         # Don't see why this check should be here???
         # if (value):
         if not(('START_ID' in key.split(':')) or ('END_ID' in key.split(':')) or ('TYPE' in key.split(':'))):
@@ -779,16 +779,16 @@ def update_neo4j_parallel(results):
     # results = {'nodes': [{'type': 'Entity', 'values': entities_nodes}, {'type': 'Article', 'values': articles_nodes}],
     #            'edges': [{'type': 'relation', 'values': relations_edges}, {'type': 'mention', 'values': entity_pmc_edges}]
     #            }
-    par_res = [{'nodes': [{} for j in results['nodes']], 'edges': [{} for j in results['edges']]} for i in xrange(N_THREADS)]
+    par_res = [{'nodes': [{} for j in results['nodes']], 'edges': [{} for j in results['edges']]} for i in range(N_THREADS)]
     # Create mini batches of the results
     for i, nodes in enumerate(results['nodes']):
         par_nodes = chunk_document_collection(nodes['values'], N_THREADS)
-        for batch_num in xrange(N_THREADS):
+        for batch_num in range(N_THREADS):
             par_res[batch_num]['nodes'][i]['type'] = nodes['type']
             par_res[batch_num]['nodes'][i]['values'] = par_nodes[batch_num]
     for i, edges in enumerate(results['edges']):
         par_edges = chunk_document_collection(edges['values'], N_THREADS)
-        for batch_num in xrange(N_THREADS):
+        for batch_num in range(N_THREADS):
             par_res[batch_num]['edges'][i]['type'] = edges['type']
             par_res[batch_num]['edges'][i]['values'] = par_edges[batch_num]
     len_col = " | ".join([str(len(b)) for b in par_edges])
@@ -844,7 +844,7 @@ def update_neo4j(results):
     password = settings['neo4j']['password']
     try:
         graph = py2neo.Graph(host=host, port=port, user=user, password=password)
-    except Exception, e:
+    except Exception as e:
         #time_log(e)
         #time_log("Couldn't connect to db! Check settings!")
         exit(2)

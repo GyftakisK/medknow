@@ -9,7 +9,7 @@ import os
 import py2neo
 import csv
 import subprocess
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import requests
 import unicodecsv as csv2
 import pandas as pd
@@ -40,11 +40,11 @@ def mmap_extract(text):
     # Tokenize into sentences
     sents = sent_tokenize(text)
     mm = MetaMap.get_instance(settings['load']['path']['metamap'])
-    concepts, errors = mm.extract_concepts(sents, range(len(sents)), 
+    concepts, errors = mm.extract_concepts(sents, list(range(len(sents))), 
                                          word_sense_disambiguation=True)
     if errors:
-        print 'Errors with extracting concepts!'
-        print errors
+        print('Errors with extracting concepts!')
+        print(errors)
     return concepts
 
 
@@ -133,12 +133,12 @@ def cui_to_uri(api_key, cui):
     """
 
     REST_URL = "http://data.bioontology.org"
-    annotations = get_json_with_api(api_key, REST_URL + "/search?include_properties=true&q=" + urllib2.quote(cui))
+    annotations = get_json_with_api(api_key, REST_URL + "/search?include_properties=true&q=" + urllib.parse.quote(cui))
     try:
         return annotations['collection'][0]['@id']
-    except Exception,e:
-        print Exception
-        print e
+    except Exception as e:
+        print(Exception)
+        print(e)
         return None
 
 def get_json_with_api(api_key, url):
@@ -153,7 +153,7 @@ def get_json_with_api(api_key, url):
         - json-style dictionary with the curl results 
     """
 
-    opener = urllib2.build_opener()
+    opener = urllib.request.build_opener()
     opener.addheaders = [('Authorization', 'apikey token=' + api_key)]
     return json.loads(opener.open(url).read())
 
@@ -293,7 +293,7 @@ def enrich_with_triples(results, subject, pred='MENTIONED_IN'):
         the same dictionary with one more 
     """
     triples = []
-    for sent_key, ents in results['entities'].iteritems():
+    for sent_key, ents in results['entities'].items():
         for ent in ents:
             if ent['uri']:
                triples.append({'subj': ent['uri'], 'pred': pred, 'obj': subject})
@@ -357,13 +357,13 @@ def semrep_wrapper(text):
             # New sentence that was processed
             if elements[5] == 'text':
                 tmp = {"entities": [], "relations": []}
-                for key, ind in mappings['text'].iteritems():
+                for key, ind in mappings['text'].items():
                     tmp[key] = elements[ind]
                 results['sents'].append(tmp)
             # A line containing entity info
             if elements[5] == 'entity':
                 tmp = {}
-                for key, ind in mappings['entity'].iteritems():
+                for key, ind in mappings['entity'].items():
                     if key == 'sem_types':
                         tmp[key] = elements[ind].split(',')
                     tmp[key] = elements[ind]
@@ -371,7 +371,7 @@ def semrep_wrapper(text):
             # A line containing relation info
             if elements[5] == 'relation':
                 tmp = {}
-                for key, ind in mappings['relation'].iteritems():
+                for key, ind in mappings['relation'].items():
                     if 'sem_types' in key:
                         tmp[key] = elements[ind].split(',')
                     else:

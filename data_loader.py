@@ -267,7 +267,7 @@ def parse_text(json_):
     out_idfield = settings['out']['json']['json_id_field']
     # labelfield where title of the document is stored
     out_labelfield = settings['out']['json']['json_label_field']
-    json_[outfield] = [art for art in json_[outfield] if textfield in art.keys()]
+    json_[outfield] = [art for art in json_[outfield] if textfield in list(art.keys())]
     json_[outfield] = [art for art in json_[outfield] if langid.classify(art[textfield])[0] == 'en']
     for article in json_[outfield]:
         article[out_textfield] = article.pop(textfield)
@@ -276,7 +276,7 @@ def parse_text(json_):
             article[out_labelfield] = article.pop(labelfield)
         else:
             article[out_labelfield] = ' '
-        if not('journal' in article.keys()):
+        if not('journal' in list(article.keys())):
             article['journal'] = 'None'
     json_[out_outfield] = json_.pop(outfield)
     # N = len(json_[out_outfield])
@@ -302,7 +302,7 @@ def parse_remove_edges(key=None):
     password = settings['neo4j']['password']
     try:
         graph = py2neo.Graph(host=host, port=port, user=user, password=password)
-    except Exception, e:
+    except Exception as e:
         #time_log(e)
         #time_log("Couldn't connect to db! Check settings!")
         exit(2)

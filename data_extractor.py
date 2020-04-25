@@ -10,7 +10,7 @@
 
 import json
 import subprocess
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import pymongo
 import numpy as np
 from nltk.tokenize import sent_tokenize
@@ -41,11 +41,11 @@ def metamap_wrapper(text):
     sents = sent_tokenize(text)
     # Load Metamap Instance
     mm = MetaMap.get_instance(settings['load']['path']['metamap'])
-    concepts, errors = mm.extract_concepts(sents, range(len(sents)))
+    concepts, errors = mm.extract_concepts(sents, list(range(len(sents))))
     # Keep the sentence ids
     ids = np.array([int(concept[0]) for concept in concepts])
     sentences = []
-    for i in xrange(len(sents)):
+    for i in range(len(sents)):
         tmp = {'sent_id': i+1, 'entities': [], 'relations': []}
         # Wanted concepts according to sentence
         wanted = np.where(ids == i)[0].tolist()
@@ -76,7 +76,8 @@ def runProcess(exe, working_dir):
         list of strings generated from the command
     """
 
-    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=working_dir, shell=True)
+    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=working_dir, shell=True,
+                         encoding="utf-8")
     lines = p.stdout.readlines()
     return lines
 
@@ -184,10 +185,10 @@ def cui_to_uri(api_key, cui):
     """
 
     REST_URL = "http://data.bioontology.org"
-    annotations = get_json_with_api(api_key, REST_URL + "/search?include_properties=true&q=" + urllib2.quote(cui))
+    annotations = get_json_with_api(api_key, REST_URL + "/search?include_properties=true&q=" + urllib.parse.quote(cui))
     try:
         return annotations['collection'][0]['@id']
-    except Exception, e:
+    except Exception as e:
         time_log(Exception)
         time_log(e)
         return None
@@ -204,7 +205,7 @@ def get_json_with_api(api_key, url):
         - json-style dictionary with the curl results
     """
 
-    opener = urllib2.build_opener()
+    opener = urllib.request.build_opener()
     opener.addheaders = [('Authorization', 'apikey token=' + api_key)]
     return json.loads(opener.open(url).read())
 
@@ -384,7 +385,7 @@ def enrich_with_triples(results, subject, pred='MENTIONED_IN'):
         the same dictionary with one more
     """
     triples = []
-    for sent_key, ents in results['entities'].iteritems():
+    for sent_key, ents in results['entities'].items():
         for ent in ents:
             if ent['uri']:
                triples.append({'subj': ent['uri'], 'pred': pred, 'obj': subject})
@@ -393,7 +394,7 @@ def enrich_with_triples(results, subject, pred='MENTIONED_IN'):
 
 def force_to_unicode(text):
     "If text is unicode, it is returned as is. If it's str, convert it to Unicode using UTF-8 encoding"
-    return text if isinstance(text, unicode) else text.decode('utf8', 'ignore')
+    return text if isinstance(text, str) else text.decode('utf8', 'ignore')
 
 
 def toAscii_wrapper(text):
@@ -486,13 +487,13 @@ def semrep_wrapper(text):
             # New sentence that was processed
             if elements[5] == 'text':
                 tmp = {"entities": [], "relations": []}
-                for key, ind in mappings['text'].iteritems():
+                for key, ind in mappings['text'].items():
                     tmp[key] = elements[ind]
                 results['sents'].append(tmp)
             # A line containing entity info
             if elements[5] == 'entity':
                 tmp = {}
-                for key, ind in mappings['entity'].iteritems():
+                for key, ind in mappings['entity'].items():
                     if key == 'sem_types':
                         tmp[key] = elements[ind].split(',')
                     tmp[key] = elements[ind]
@@ -500,7 +501,7 @@ def semrep_wrapper(text):
             # A line containing relation info
             if elements[5] == 'relation':
                 tmp = {}
-                for key, ind in mappings['relation'].iteritems():
+                for key, ind in mappings['relation'].items():
                     if 'sem_types' in key:
                         tmp[key] = elements[ind].split(',')
                     else:
@@ -551,7 +552,7 @@ def extract_semrep(json_, key):
     textfield = settings['out']['json']['json_text_field']
     N = len(json_[docfield])
     for i, doc in enumerate(json_[docfield]):
-        print doc['id']
+        print(doc['id'])
         text = doc[textfield]
         if len(text) > 5000:
             chunks = create_text_batches(text)
@@ -602,7 +603,7 @@ def extract_semrep_parallel(json_, key):
     len_col = " | ".join([str(len(b)) for b in batches])
     time_log('Will break the collection into batches of: %s documents!' % len_col)
     batches = [{docfield: batch} for batch in batches]
-    data = zip(batches, [key for batch in batches])
+    data = list(zip(batches, [key for batch in batches]))
     pool = Pool(N_THREADS, maxtasksperchild=1)
     res = pool.map(semrep_parallel_worker, data)
     pool.close()
@@ -646,7 +647,7 @@ def chunk_document_collection(seq, num):
     return out
 
 
-def semrep_parallel_worker((json_, key)):
+def semrep_parallel_worker(xxx_todo_changeme):
     """
     Just a worker interface for the different SemRep
     executions.
@@ -662,6 +663,7 @@ def semrep_parallel_worker((json_, key)):
         the previous json-style dictionary enriched with medical concepts
 
     """
+    (json_, key) = xxx_todo_changeme
     res = extract_semrep(json_, key)
     return res
 
@@ -695,7 +697,7 @@ def get_concepts_from_edges_parallel(json_, key):
     len_col = " | ".join([str(len(b)) for b in batches])
     time_log('Will break the edges into batches of: %s documents!' % len_col)
     batches = [{outfield: batch} for batch in batches]
-    data = zip(batches, [key for batch in batches])
+    data = list(zip(batches, [key for batch in batches]))
     pool = Pool(N_THREADS, maxtasksperchild=1)
     res = pool.map(edges_parallel_worker, data)
     pool.close()
@@ -710,7 +712,7 @@ def get_concepts_from_edges_parallel(json_, key):
 
 
 
-def edges_parallel_worker((json_, key)):
+def edges_parallel_worker(xxx_todo_changeme1):
     """
     Just a worker interface for the parallel enrichment
     executions.
@@ -726,6 +728,7 @@ def edges_parallel_worker((json_, key)):
         expected outcome of get_concepts_from_edges
 
     """
+    (json_, key) = xxx_todo_changeme1
     res = get_concepts_from_edges(json_, key)
     return res
 
@@ -775,14 +778,14 @@ def get_concepts_from_edges(json_, key):
         cache[item['key']] = item['value']
     N = len(json_[outfield])
     for ii, triple in enumerate(json_[outfield]):
-        print triple
+        print(triple)
         try:
             if sub_source == 'UMLS':
                 if not(triple['s'] in cache):
                     ent = get_concept_from_cui(triple['s'])
                     cache[triple['s']] = ent
                     collection.insert_one({'key':triple['s'],'value':ent})
-                    print 'INSERTED in UMLS %s' % triple['s']
+                    print('INSERTED in UMLS %s' % triple['s'])
                 else:
                     ent = cache[triple['s']]
                 if (type(ent['sem_types']) == list and len(ent['sem_types']) > 1):
@@ -802,7 +805,7 @@ def get_concepts_from_edges(json_, key):
                     ents = get_concept_from_source(triple['s'], sub_source)
                     cache[triple['s']] = ents
                     collection.insert_one({'key':triple['s'],'value':ents})
-                    print 'INSERTED in other %s' % triple['s']
+                    print('INSERTED in other %s' % triple['s'])
                 else:
                     ents = cache[triple['s']]
                 triple_subj = []
@@ -822,7 +825,7 @@ def get_concepts_from_edges(json_, key):
                     ent = get_concept_from_cui(triple['o'])
                     cache[triple['o']] = ent
                     collection.insert_one({'key':triple['o'],'value':ent})
-                    print 'INSERTED in UMLS %s' % triple['o']
+                    print('INSERTED in UMLS %s' % triple['o'])
                 else:
                     ent = cache[triple['o']]
                 if (type(ent['sem_types']) == list and len(ent['sem_types']) > 1):
@@ -841,7 +844,7 @@ def get_concepts_from_edges(json_, key):
                     ents = get_concept_from_source(triple['o'], obj_source)
                     cache[triple['o']] = ents
                     collection.insert_one({'key':triple['o'],'value':ents})
-                    print 'INSERTED in other %s' % triple['o']
+                    print('INSERTED in other %s' % triple['o'])
                 else:
                     ents = cache[triple['o']]
                 triple_obj = []
@@ -859,7 +862,7 @@ def get_concepts_from_edges(json_, key):
             combs = product(triple_subj, triple_obj)
             for comb in combs:
                 new_relations.append({'s':comb[0], 'p':triple['p'], 'o':comb[1]})
-        except Exception, e:
+        except Exception as e:
             time_log(e)
             time_log('S: %s | P: %s | O: %s' % (triple['s'],triple['p'],triple['o']))
             time_log('Skipped the above edge! Probably due to concept-fetching errors!')
