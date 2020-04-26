@@ -9,15 +9,25 @@ uri = "https://utslogin.nlm.nih.gov"
 auth_endpoint = "/cas/v1/api-key"
 
 
-class Authentication:
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Authentication(metaclass=Singleton):
 
     def __init__(self, apikey):
         # self.username=username
         # self.password=password
         self.apikey = apikey
         self.service = "http://umlsks.nlm.nih.gov"
+        self._tgt = self._gettgt()
 
-    def gettgt(self):
+    def _gettgt(self):
         # params = {'username': self.username,'password': self.password}
         params = {'apikey': self.apikey}
         h = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain", "User-Agent": "python" }
@@ -27,13 +37,14 @@ class Authentication:
         # looks similar to https://utslogin.nlm.nih.gov/cas/v1/tickets/TGT-36471-aYqNLN2rFIJPXKzxwdTNC5ZT7z3B3cTAKfSc5ndHQcUxeaDOLN-cas
         # we make a POST call to this URL in the getst method
         tgt = d.find('form').attr('action')
+        print("Got ticket")
         return tgt
 
-    def getst(self, tgt):
+    def getst(self):
 
         params = {'service': self.service}
         h = {"Content-type": "application/x-www-form-urlencoded", 
              "Accept": "text/plain", "User-Agent": "python"}
-        r = requests.post(tgt, data=params, headers=h)
+        r = requests.post(self._tgt, data=params, headers=h)
         st = r.text
         return st

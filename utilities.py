@@ -15,11 +15,11 @@ from .Authentication import Authentication
 
 
 # API-kEY FOR UMLS REST TICKET SERVICES
-umls_api = settings['apis']['umls']
+# umls_api = settings['apis']['umls']
 # UMLS REST SERVICES INITIALIZATION OF CLIENT AND TICKET
 # GRANTING SERVICE TO BE USED IN ALL CASES
-AuthClient = Authentication(umls_api)
-tgt = AuthClient.gettgt()
+# AuthClient = Authentication(umls_api)
+# tgt = AuthClient.gettgt()
 
 # To supress some kind of warning?!
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -47,7 +47,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 # logger.addHandler(fh)
 
 
-def get_umls_ticket2(tgt=tgt, AuthClient=AuthClient, apikey=umls_api):
+def get_umls_ticket2():
     """
     Get a single use ticket for the UMLS REST services.
     It is supposed that an Author Client and a Ticket
@@ -62,36 +62,32 @@ def get_umls_ticket2(tgt=tgt, AuthClient=AuthClient, apikey=umls_api):
         - string of the generated ticket
     """
 
-    # Get ticket from the already establised service
-    if not(tgt) and not(AuthClient):
-        AuthClient = Authentication(umls_api)
-        tgt = AuthClient.gettgt()
-    return AuthClient.getst(tgt)
+    return Authentication(settings['apis']['umls']).getst()
 
 
-def get_umls_ticket(apikey=None, AuthClient=AuthClient, tgt=tgt):
-    """
-    Get a single use ticket for the UMLS REST services.
-    It is supposed that an Author Client and a Ticket
-    Granting Service have already been set-up in case
-    the apikey = None. If an api-key is given, create the
-    above needed instances and generate a new ticket.
-    Input:
-        - apikey: str,
-        UMLS REST services api-key. Default is None and
-        the already establised service is used
-    Output:
-        - string of the generated ticket
-    """
-
-    # Get ticket from the already establised service
-    if apikey is None:
-        return AuthClient.getst(tgt)
-    else:
-        # Establish new Client and Ticket granting service
-        AuthClient = Authentication(apikey)
-        tgt = AuthClient.gettgt()
-        return AuthClient.getst(tgt)
+# def get_umls_ticket(apikey=None, AuthClient=AuthClient, tgt=tgt):
+#     """
+#     Get a single use ticket for the UMLS REST services.
+#     It is supposed that an Author Client and a Ticket
+#     Granting Service have already been set-up in case
+#     the apikey = None. If an api-key is given, create the
+#     above needed instances and generate a new ticket.
+#     Input:
+#         - apikey: str,
+#         UMLS REST services api-key. Default is None and
+#         the already establised service is used
+#     Output:
+#         - string of the generated ticket
+#     """
+#
+#     # Get ticket from the already establised service
+#     if apikey is None:
+#         return AuthClient.getst(tgt)
+#     else:
+#         # Establish new Client and Ticket granting service
+#         AuthClient = Authentication(apikey)
+#         tgt = AuthClient.gettgt()
+#         return AuthClient.getst(tgt)
 
 
 def time_log(phrase, time_start=None):
@@ -108,7 +104,7 @@ def time_log(phrase, time_start=None):
     return 1
 
 
-def get_concept_from_source(source_id, source, apikey=tgt):
+def get_concept_from_source(source_id, source):
     """
     Function that maps an entity from another source to UMLS concepts.
     Input:

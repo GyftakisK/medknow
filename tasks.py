@@ -14,6 +14,7 @@ from .data_extractor import extract_semrep, extract_semrep_parallel, extract_met
                            get_concepts_from_edges, get_concepts_from_edges_parallel
 from .data_saver import save_csv, save_neo4j, save_json, save_json2, create_neo4j_results, \
                         create_neo4j_csv, update_neo4j, update_mongo_sentences, save_mongo, update_neo4j_parallel
+from .Authentication import Authentication
 from tqdm import tqdm
 import ijson.backends.yajl2_cffi as ijson2
 
@@ -134,6 +135,7 @@ class Extractor(object):
         elif self.key == 'reverb':
             raise NotImplementedError
         elif self.key == 'get_concepts_from_edges':
+            Authentication(settings['apis']['umls'])
             if str(settings['pipeline']['in']['parallel']) == 'True':
                 self.func = get_concepts_from_edges_parallel
             else:
