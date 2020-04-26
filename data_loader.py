@@ -87,17 +87,17 @@ def load_mongo_batches(key, N_collection, ind_=0):
         except:
             batch_per_core = 100
         step = N_THREADS * batch_per_core
+        if step > N_collection:
+            step = N_collection
     time_log("Will start from %d/%d and read %d items" % (ind_, N_collection, step))
-    if step > N_collection:
-        step = N_collection
-    else:
-        cur = collection.find({}, skip=ind_, limit=step)
-        c = 0
-        for item in cur:
-            del item['_id']
-            c += 1
-            json_[out_outfield].append(item)
-        return json_, ind_ + step
+
+    cur = collection.find({}, skip=ind_, limit=step)
+    c = 0
+    for item in cur:
+        del item['_id']
+        c += 1
+        json_[out_outfield].append(item)
+    return json_, ind_ + step
 
 def load_file(key):
     """
