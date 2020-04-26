@@ -14,7 +14,7 @@ import requests
 import unicodecsv as csv2
 import pandas as pd
 from nltk.tokenize import sent_tokenize
-from config import settings
+from .config import settings
 
 
 

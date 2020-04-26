@@ -6,13 +6,13 @@
 # a task to complete, such as reading from file, extracting concepts
 # and saving to disk again.
 
-from config import settings
-from utilities import time_log
-from data_loader import load_file, load_file_batches, load_mongo, load_mongo_batches, \
+from .config import settings
+from .utilities import time_log
+from .data_loader import load_file, load_file_batches, load_mongo, load_mongo_batches, \
                         parse_remove_edges, parse_text, get_collection_count
-from data_extractor import extract_semrep, extract_semrep_parallel, extract_metamap, \
+from .data_extractor import extract_semrep, extract_semrep_parallel, extract_metamap, \
                            get_concepts_from_edges, get_concepts_from_edges_parallel
-from data_saver import save_csv, save_neo4j, save_json, save_json2, create_neo4j_results, \
+from .data_saver import save_csv, save_neo4j, save_json, save_json2, create_neo4j_results, \
                         create_neo4j_csv, update_neo4j, update_mongo_sentences, save_mongo, update_neo4j_parallel
 from tqdm import tqdm
 import ijson.backends.yajl2_cffi as ijson2

@@ -10,8 +10,8 @@ import py2neo
 import pymongo
 import langid
 import pandas as pd
-from config import settings
-from utilities import time_log
+from .config import settings
+from .utilities import time_log
 from multiprocessing import cpu_count
 import ijson.backends.yajl2_cffi as ijson2
 

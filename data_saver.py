@@ -11,9 +11,9 @@ import os
 import py2neo
 import unicodecsv as csv2
 import pymongo
-from config import settings
-from utilities import time_log
-from data_extractor import chunk_document_collection
+from .config import settings
+from .utilities import time_log
+from .data_extractor import chunk_document_collection
 from multiprocessing import cpu_count, Pool
 
 

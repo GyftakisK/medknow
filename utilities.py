@@ -10,8 +10,8 @@ import time
 import logging
 import requests
 import json
-from config import settings
-from Authentication import Authentication
+from .config import settings
+from .Authentication import Authentication
 
 
 # API-kEY FOR UMLS REST TICKET SERVICES

@@ -14,9 +14,9 @@ import urllib.request, urllib.error, urllib.parse
 import pymongo
 import numpy as np
 from nltk.tokenize import sent_tokenize
-from config import settings
+from .config import settings
 from pymetamap import MetaMap
-from utilities import time_log, get_concept_from_cui, get_concept_from_source
+from .utilities import time_log, get_concept_from_cui, get_concept_from_source
 from itertools import product
 from multiprocessing import cpu_count, Pool
 from unidecode import unidecode
