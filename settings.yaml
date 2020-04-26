@@ -1,0 +1,202 @@
+##########################
+# CONFIGURATION FILE FOR VARIABLES
+# USED ACROSS THE PROJECT
+##########################
+
+
+##########################  PIPELINE  ##########################
+# Pipeline flags for what processes to perform on the data
+pipeline:
+  # What  to read
+  in:
+    # What's the source of the corpus.
+    source: 
+    # What's the type of the input to be read. Will use
+    # the corresponding fields in this setting file.
+    type: 
+    # Do we want to do it all in a streaming fashion?
+    stream:
+    # Do we want to perform parallel semrep processing?
+    # Currently for semrep extraction and neo4j saving
+    parallel:
+  # What to do with it
+  trans:
+    # Extract entities using metamap?
+    metamap:
+    # Extract relations using reverb?
+    reverb:
+    # Extract entities + relations through semrep?
+    semrep:
+    # Transform edges, fetching concepts and other info?
+    get_concepts_from_edges:
+  # What to do with the outcome
+  out:
+    # Create json output?
+    json:
+    # Create .csv files for neo4j?
+    csv:
+    # Create-update neo4 db?
+    neo4j:
+    # Create-update sentences in mongo?
+    mongo_sentences:
+    # Create-update collection of documents/edges in mongo?
+    mongo:
+########################## END PIPELINE ##########################
+
+
+
+
+
+##########################  INPUT ##########################
+# Variables regarding loading
+load:
+  # Paths to binaries/files
+  path:
+    # Path to metamap
+    metamap:
+    # Path to reverb
+    reverb:
+    # Path to semrep
+    semrep:
+    # Path toAscii binary
+    toAscii:
+    # Path to input File
+    file_path: 
+  # Mongo input variables
+  mongo:
+    # DB Full uri. If user/pass required pass it here like mongodb://user:pass@host:port
+    uri: 
+    # DB name
+    db: 
+    # Collection name
+    collection: 
+    # Cache collection name
+    cache_collection: 
+    # FOR PRINTING PURPOSES ONLY!
+    file_path: 
+  # For medical records
+  med_rec:
+    # Medical record name of the column to read text from
+    textfield: 
+    # Field separator
+    sep: 
+    # idfield
+    idfield: 
+  # For article-document type of input
+  text:
+    # Outer field name for the documents residing in a json probably
+    itemfield: 
+    # Name of the field to read text from
+    textfield: 
+    # Idfield for each document
+    idfield: 
+    # Label field for each article
+    labelfield: 
+    # Sentence Prefix (is this abstract or fullText)
+    sent_prefix: 
+  # For relation-edge type of input
+  edges:
+    # Name of the field where edges are stored
+    itemfield: 
+    # Type of the subject
+    # Currently [Entity, Article and any new one]
+    sub_type: 
+    # Type of the object
+    obj_type: 
+    # Id_field of the subject
+    # Currently [UMLS for cuis, PMC or TEXT for articles, None for precomputed and whatever else for DRUGBANK,MSH etc]
+    sub_source: 
+    # Id_field of the subject
+    obj_source: 
+##########################  END INPUT ##########################
+
+
+
+##########################  API KEYS ##########################
+# Variables regarding apis
+apis:
+  # Biontology for mapping cuis to uris
+  biont: 
+  # Umls ticket service
+  umls: 
+##########################  END API KEYS ##########################
+
+##########################  NEO4j ##########################
+# Neoj variables
+neo4j:
+  # DB url
+  host: 
+  # port
+  port: 
+  # user name
+  user: 
+  # password
+  password: 
+  # name of the resource to be inputted in neo4j
+  resource: 
+##########################  END NEO4j ##########################
+
+
+##########################  MONGODB FOR SENTENCES ##########################
+# Mongo variables for writing sentences
+mongo_sentences:
+  # DB Full uri. If user/pass required pass it here like mongodb://user:pass@host:port
+  uri: 
+  # DB name
+  db: 
+  # Collection name
+  collection: 
+##########################  END MONGODB ##########################
+
+
+########################## CACHE  ############################
+cache_path: 
+########################## END CACHE  ############################
+
+########################## LOG  ############################
+log_path: 
+########################## END LOG  ############################
+
+
+########################## PARALLEL  ############################
+# Number of cores to use in parallel schemes. If none, it will be
+# equal to cpu count, using all available cores.
+num_cores: 
+# Number of items per core to be processed. This will create a batch
+# of total size = num_cores*batch_per_core. It defaults to 100
+batch_per_core: 
+########################## END PARALLEL  ############################
+
+##########################  OUTPUT ##########################
+# Output variables
+out:
+   # Resulting .json file before neo4j
+  json:
+    # Path
+    out_path: 
+    # Output json outer field name for the documents
+    itemfield: 
+    # Output json text field for each document
+    json_text_field: 
+    # Output Idfield
+    json_id_field: 
+    # Output Label field
+    json_label_field: 
+  # Resulting .json file before neo4j
+  csv:
+    # Path
+    out_path: 
+  # Resulting .json file before neo4j
+  neo4j:
+    # Just for printing! Change the Neo4j field variables, not this!
+    out_path: 
+  mongo:
+    # DB Full uri. If user/pass required pass it here like mongodb://user:pass@host:port
+    uri: 
+    # DB name
+    db: 
+    # Collection name
+    collection: 
+    # Just for printing! Change the mongo field variables, not this!
+    out_path: 
+##########################  END OUTPUT ##########################
