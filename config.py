@@ -11,4 +11,4 @@ import os
 settings_filename = os.path.join(os.path.dirname(__file__), 'settings.yaml')
 #settings_filename = '../'
 with open(settings_filename, "r") as f:
-    settings = yaml.load(f)
+    settings = yaml.load(f, Loader=yaml.FullLoader)

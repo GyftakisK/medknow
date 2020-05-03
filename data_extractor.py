@@ -443,7 +443,6 @@ def semrep_wrapper(text):
     #print cmd
     semrep_dir = settings['load']['path']['semrep']
     lines = runProcess(cmd, semrep_dir)
-    #print(lines)
     # mapping of line elements to fields
     mappings = {
         "text": {
