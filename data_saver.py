@@ -849,7 +849,7 @@ def update_neo4j(results):
     port = settings['neo4j']['port']
     user = settings['neo4j']['user']
     password = settings['neo4j']['password']
-    graph = py2neo.Graph(host=host, port=port, user=user, password=password)
+    graph = py2neo.Graph(host=host, http_port=int(port), user=user, password=password)
     for nodes in results['nodes']:
         populate_nodes(graph, nodes['values'], nodes['type'])
     for edges in results['edges']:
