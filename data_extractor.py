@@ -18,7 +18,8 @@ from .config import settings
 from pymetamap import MetaMap
 from .utilities import time_log, get_concept_from_cui, get_concept_from_source
 from itertools import product
-from multiprocessing import cpu_count, Pool
+from multiprocessing import cpu_count
+from billiard.pool import Pool
 from unidecode import unidecode
 
 def metamap_wrapper(text):
