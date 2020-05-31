@@ -16,8 +16,7 @@ import pymongo
 from .config import settings
 from .utilities import time_log
 from .data_extractor import chunk_document_collection
-from multiprocessing import cpu_count
-from billiard.pool import Pool
+from multiprocessing import cpu_count, Pool
 
 
 suppress_log_to_file = py2neo.watch('neo4j',
