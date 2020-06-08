@@ -9,7 +9,7 @@ import json
 import py2neo
 import pymongo
 import langid
-import pandas as pd
+# import pandas as pd
 from .config import settings
 from .utilities import time_log
 from multiprocessing import cpu_count
@@ -112,7 +112,8 @@ def load_file(key):
 
     # input file path from settings.yamml
     if key == 'med_rec':
-        json_ = parse_medical_rec()
+        # json_ = parse_medical_rec()
+        raise NotImplementedError
     else:
         inp_path = settings['load']['path']['file_path']
         with open(inp_path, 'r') as f:
@@ -187,45 +188,45 @@ def load_file_batches(key, N_collection, ind_=0):
         return json_, ind_ + step
 
 
-def parse_medical_rec():
-    """
-    Parse file containing medical records.
-    Output:
-        - json_ : dic,
-        json-style dictionary with documents containing
-        a list of dicts, containing the medical record and the corresponding
-        attributes
-    """
-
-    # path to file to read from
-    inp_path = settings['load']['path']['file_path']
-    # csv seperator from settings.yaml
-    sep = settings['load']['med_rec']['sep']
-    # textfield to read text from
-    textfield = settings['load']['med_rec']['textfield']
-    # idfield where id of document is stored
-    idfield = settings['load']['med_rec']['idfield']
-    with open(inp_path, 'r') as f:
-        diag = pd.DataFrame.from_csv(f, sep='\t')
-    # Get texts
-    texts = diag[textfield].values
-    # outerfield for the documents in json
-    itemfield = settings['out']['json']['itemfield']
-    # textfield to read text from
-    out_textfield = settings['out']['json']['json_text_field']
-    # labelfield where title of the document is stored
-    out_labelfield = settings['out']['json']['json_label_field']
-    diag[out_labelfield] = ['Medical Record' + str(i) for i in diag.index.values.tolist()]
-    if not('journal' in diag.columns.tolist()):
-        diag['journal'] = ['None' for i in diag.index.values.tolist()]
-    # Replace textfiled with out_textfield
-    diag[out_textfield] = diag[textfield]
-    del diag[textfield]
-    # Replace id with default out_idfield
-    diag['id'] = diag[idfield]
-    del diag[idfield]
-    json_ = {itemfield: diag.to_dict(orient='records')}
-    return json_
+# def parse_medical_rec():
+#     """
+#     Parse file containing medical records.
+#     Output:
+#         - json_ : dic,
+#         json-style dictionary with documents containing
+#         a list of dicts, containing the medical record and the corresponding
+#         attributes
+#     """
+#
+#     # path to file to read from
+#     inp_path = settings['load']['path']['file_path']
+#     # csv seperator from settings.yaml
+#     sep = settings['load']['med_rec']['sep']
+#     # textfield to read text from
+#     textfield = settings['load']['med_rec']['textfield']
+#     # idfield where id of document is stored
+#     idfield = settings['load']['med_rec']['idfield']
+#     with open(inp_path, 'r') as f:
+#         diag = pd.DataFrame.from_csv(f, sep='\t')
+#     # Get texts
+#     texts = diag[textfield].values
+#     # outerfield for the documents in json
+#     itemfield = settings['out']['json']['itemfield']
+#     # textfield to read text from
+#     out_textfield = settings['out']['json']['json_text_field']
+#     # labelfield where title of the document is stored
+#     out_labelfield = settings['out']['json']['json_label_field']
+#     diag[out_labelfield] = ['Medical Record' + str(i) for i in diag.index.values.tolist()]
+#     if not('journal' in diag.columns.tolist()):
+#         diag['journal'] = ['None' for i in diag.index.values.tolist()]
+#     # Replace textfiled with out_textfield
+#     diag[out_textfield] = diag[textfield]
+#     del diag[textfield]
+#     # Replace id with default out_idfield
+#     diag['id'] = diag[idfield]
+#     del diag[idfield]
+#     json_ = {itemfield: diag.to_dict(orient='records')}
+#     return json_
 
 
 

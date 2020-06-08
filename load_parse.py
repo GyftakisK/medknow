@@ -5,14 +5,14 @@
 # Function to extract knowledge from medical text
 
 import json
-import os
-import py2neo
-import csv
+# import os
+# import py2neo
+# import csv
 import subprocess
 import urllib.request, urllib.error, urllib.parse
-import requests
-import unicodecsv as csv2
-import pandas as pd
+# import requests
+# import unicodecsv as csv2
+# import pandas as pd
 from nltk.tokenize import sent_tokenize
 from .config import settings
 
