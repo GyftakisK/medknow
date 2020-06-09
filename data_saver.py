@@ -11,6 +11,7 @@ import os
 import py2neo
 import time
 import random
+import re
 import unicodecsv as csv2
 import pymongo
 from .config import settings
@@ -323,7 +324,7 @@ def create_neo4j_harvester(json_):
                     relations_edges.append({':START_ID': rel['subject__cui'],
                                      'subject_score:float[]': rel['subject__score'],
                                      'subject_sem_type:string[]': rel['subject__sem_type'],
-                                     ':TYPE': rel['predicate'].replace('(','__').replace(')','__'),
+                                     ':TYPE': re.sub(r'\(.*\)', '', rel['predicate']),
                                      'pred_type:string[]': rel['predicate__type'],
                                      'object_score:float[]': rel['object__score'],
                                      'object_sem_type:string[]': rel['object__sem_type'],

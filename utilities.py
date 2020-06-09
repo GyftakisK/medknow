@@ -95,13 +95,13 @@ def time_log(phrase, time_start=None):
     A time_logger function so as to print info with time since elapsed if wanted,
     alongside with the current logging config.
     """
-
+    print(phrase)
     # If we want to also print time_elapsed
-    if time_start:
-        logging.info('%s in : %.2f seconds.' % (phrase, time.time() - time_start))
-    else:
-        logging.info('%s' % (phrase))
-    return 1
+    # if time_start:
+    #     logging.info('%s in : %.2f seconds.' % (phrase, time.time() - time_start))
+    # else:
+    #     logging.info('%s' % (phrase))
+    # return 1
 
 
 def get_concept_from_source(source_id, source):
