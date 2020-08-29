@@ -20,11 +20,6 @@ from .data_extractor import chunk_document_collection
 from multiprocessing import cpu_count, Pool
 
 
-suppress_log_to_file = py2neo.watch('neo4j',
-                                    level='ERROR', out='./out/neo4j.log')
-suppress_log_to_file2 = py2neo.watch('httpstream',
-                                    level='ERROR', out='./out/neo4j.log')
-
 def save_json2(json_):
     """
     Helper function to save enriched medical json to file.
@@ -598,7 +593,7 @@ def populate_relation_edges(graph, relations_edges):
         Return r;
         """ % (edge[':START_ID'], edge[':END_ID'], edge[':TYPE'], edge['sent_id:string[]'].split(';')[0])
         f = graph.run(quer)
-        if len(f.data()) == 0 and edge[':START_ID'] and edge[':END_ID']:
+        if not f.forward() and edge[':START_ID'] and edge[':END_ID']:
             quer = create_edge_query(edge, 'Entity', 'Entity')
             # subj_s = '['
             # for i in edge['subject_sem_type:string[]'].split(';'):
@@ -673,7 +668,7 @@ def populate_mentioned_edges(graph, entity_pmc_edges):
         Return r;
         """ % (edge[':START_ID'], edge[':END_ID'], edge[':TYPE'] , edge['sent_id:string[]'])
         f = graph.run(quer)
-        if len(f.data()) == 0 and edge[':START_ID'] and edge[':END_ID']:
+        if not f.forward() and edge[':START_ID'] and edge[':END_ID']:
             quer = create_edge_query(edge, 'Entity', 'Article')
             # sent_s = '['
             # for i in edge['sent_id:string[]'].split(';'):
@@ -725,7 +720,7 @@ def populate_new_edges(graph, new_edges):
         Return r;
         """ % (sub_type, edge[':START_ID'], obj_type, edge[':END_ID'], edge[':TYPE'], settings['neo4j']['resource'])
         f = graph.run(quer)
-        if len(f.data()) == 0 and edge[':START_ID'] and edge[':END_ID']:
+        if not f.forward() and edge[':START_ID'] and edge[':END_ID']:
             quer = create_edge_query(edge, sub_type, obj_type)
             # sent_res = '['
             # for i in edge['resource:string[]'].split(';'):
@@ -850,7 +845,7 @@ def update_neo4j(results):
     port = settings['neo4j']['port']
     user = settings['neo4j']['user']
     password = settings['neo4j']['password']
-    graph = py2neo.Graph(host=host, http_port=int(port), user=user, password=password)
+    graph = py2neo.Graph(scheme='http', host=host, http_port=int(port), user=user, password=password)
     for nodes in results['nodes']:
         populate_nodes(graph, nodes['values'], nodes['type'])
     for edges in results['edges']:
