@@ -871,4 +871,5 @@ def get_concepts_from_edges(json_, key):
         # if ii % 100 == 0 and ii > 9:
         #     time_log("Edges Transformation Process: %d -- %0.2f %%" % (ii, 100*ii/float(len(json_[outfield]))))
     json_[outfield] = new_relations
+    client.close()
     return json_

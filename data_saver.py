@@ -906,6 +906,7 @@ def update_mongo_sentences(json_):
                     upd += 1
         if i % 100 == 0 and i > 99:
             time_log("Process: %d -- %0.2f %%" % (i, 100*i/float(len(docs))))
+    client.close()
     time_log('Finally updated %d -- inserted %d documents!' % (upd, new))
 
 
@@ -943,4 +944,5 @@ def save_mongo(json_):
             raise NotImplementedError
         if i % 100 == 0 and i > 99:
             time_log("Process: %d -- %0.2f %%" % (i, 100*i/float(len(docs))))
+    client.close()
     return 1

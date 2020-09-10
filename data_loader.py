@@ -42,6 +42,7 @@ def load_mongo(key):
     for item in cur:
         del item['_id']
         json_[out_outfield].append(item)
+    client.close()
     return json_
 
 
@@ -97,6 +98,7 @@ def load_mongo_batches(key, N_collection, ind_=0):
         del item['_id']
         c += 1
         json_[out_outfield].append(item)
+    client.close()
     return json_, ind_ + step
 
 def load_file(key):
@@ -348,6 +350,7 @@ def get_collection_count(source, type):
         db = client[db_name]
         collection = db[collection_name]
         N_collection = collection.count()
+        client.close()
     else:
         time_log("Can't calculate total collection count for source type %s" % settings['in']['source'])
         raise NotImplementedError
