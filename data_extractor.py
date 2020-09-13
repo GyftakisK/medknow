@@ -771,22 +771,13 @@ def get_concepts_from_edges(json_, key):
     client = pymongo.MongoClient(uri)
     db = client[db_name]
     collection = db[collection_name]
-    cur = collection.find({})
-    cache = {}
-    for item in cur:
-        cache[item['key']] = item['value']
+    local_cache = {}
     N = len(json_[outfield])
     for ii, triple in enumerate(json_[outfield]):
         print(triple)
         try:
             if sub_source == 'UMLS':
-                if not(triple['s'] in cache):
-                    ent = get_concept_from_cui(triple['s'])
-                    cache[triple['s']] = ent
-                    collection.insert_one({'key':triple['s'],'value':ent})
-                    print('INSERTED in UMLS %s' % triple['s'])
-                else:
-                    ent = cache[triple['s']]
+                ent = get_concept(triple['s'], sub_source, local_cache, collection)
                 if (type(ent['sem_types']) == list and len(ent['sem_types']) > 1):
                     sem_types = ';'.join(ent['sem_types'])
                 elif (',' in ent['sem_types']):
@@ -800,13 +791,7 @@ def get_concepts_from_edges(json_, key):
             elif (sub_source == 'PMC') or (sub_source == 'TEXT') or (sub_source == 'None'):
                 triple_subj = [{'id:ID': triple['s']}]
             else:
-                if not(triple['s'] in cache):
-                    ents = get_concept_from_source(triple['s'], sub_source)
-                    cache[triple['s']] = ents
-                    collection.insert_one({'key':triple['s'],'value':ents})
-                    print('INSERTED in other %s' % triple['s'])
-                else:
-                    ents = cache[triple['s']]
+                ents = get_concept(triple['s'], sub_source, local_cache, collection)
                 triple_subj = []
                 for ent in ents:
                     if (type(ent['sem_types']) == list and len(ent['sem_types']) > 1):
@@ -820,13 +805,7 @@ def get_concepts_from_edges(json_, key):
                                     'label': ent['label'],
                                     'sem_types:string[]': sem_types})
             if obj_source == 'UMLS':
-                if not(triple['o'] in cache):
-                    ent = get_concept_from_cui(triple['o'])
-                    cache[triple['o']] = ent
-                    collection.insert_one({'key':triple['o'],'value':ent})
-                    print('INSERTED in UMLS %s' % triple['o'])
-                else:
-                    ent = cache[triple['o']]
+                ent = get_concept(triple['o'], obj_source, local_cache, collection)
                 if (type(ent['sem_types']) == list and len(ent['sem_types']) > 1):
                     sem_types = ';'.join(ent['sem_types'])
                 elif (',' in ent['sem_types']):
@@ -839,13 +818,7 @@ def get_concepts_from_edges(json_, key):
             elif (obj_source == 'PMC') or (obj_source == 'TEXT') or (obj_source == 'None'):
                 triple_obj = [{'id:ID': triple['o']}]
             else:
-                if not(triple['o'] in cache):
-                    ents = get_concept_from_source(triple['o'], obj_source)
-                    cache[triple['o']] = ents
-                    collection.insert_one({'key':triple['o'],'value':ents})
-                    print('INSERTED in other %s' % triple['o'])
-                else:
-                    ents = cache[triple['o']]
+                ents = get_concept(triple['o'], obj_source, local_cache, collection)
                 triple_obj = []
                 for ent in ents:
                     if (type(ent['sem_types']) == list and len(ent['sem_types']) > 1):
@@ -863,7 +836,7 @@ def get_concepts_from_edges(json_, key):
                 new_relations.append({'s':comb[0], 'p':triple['p'], 'o':comb[1]})
         except Exception as e:
             time_log(e)
-            time_log('S: %s | P: %s | O: %s' % (triple['s'],triple['p'],triple['o']))
+            time_log('S: %s | P: %s | O: %s' % (triple['s'], triple['p'], triple['o']))
             time_log('Skipped the above edge! Probably due to concept-fetching errors!')
         proc = int(ii/float(N)*100)
         if proc % 10 == 0 and proc > 0:
@@ -873,3 +846,40 @@ def get_concepts_from_edges(json_, key):
     json_[outfield] = new_relations
     client.close()
     return json_
+
+
+def get_concept(concept_identifier, concept_source, local_cache, collection):
+    if concept_source == 'UMLS':
+        return get_umls_concept(concept_identifier, local_cache, collection)
+    else:
+        return get_other_concept(concept_identifier, concept_source, local_cache, collection)
+
+
+def get_other_concept(concept_identifier, concept_source, local_cache, collection):
+    if concept_identifier not in local_cache:
+        entry = collection.find_one({'key': concept_identifier})
+        if entry:
+            ents = entry['value']
+        else:
+            ents = get_concept_from_source(concept_identifier, concept_source)
+            collection.insert_one({'key': concept_identifier, 'value': ents})
+            print('INSERTED in other %s' % concept_identifier)
+        local_cache[concept_identifier] = ents
+        return ents
+    else:
+        return local_cache[concept_identifier]
+
+
+def get_umls_concept(concept_identifier, local_cache, collection):
+    if concept_identifier not in local_cache:
+        entry = collection.find_one({'key': concept_identifier})
+        if entry:
+            ent = entry['value']
+        else:
+            ent = get_concept_from_cui(concept_identifier)
+            collection.insert_one({'key': concept_identifier, 'value': ent})
+            print('INSERTED in UMLS %s' % concept_identifier)
+        local_cache[concept_identifier] = ent
+        return ent
+    else:
+        return local_cache[concept_identifier]
