@@ -889,9 +889,12 @@ def update_mongo_sentences(json_):
     upd = 0
     docs = json_[settings['out']['json']['itemfield']]
     for i, doc in enumerate(docs):
-        cursor = collection.find({'id': doc['id']})
+        try:
+            cursor = collection.find({'id': doc['id']})
+        except KeyError:
+            cursor = None
         sents = [{'sent_id': sent['sent_id'], 'text': sent['sent_text']} for sent in doc['sents']]
-        if cursor.count() == 0:
+        if not cursor or cursor.count() == 0:
             collection.insert_one({'id': doc['id'], 'sentences': sents})
             new += 1
         else:
